@@ -105,12 +105,16 @@ class RandomClassifier(Classifier) :
         --------------------
             self -- an instance of self
         """
+        # Generate the counts and probabilities for the majority and minority values
+        vals, counts = np.unique(y, return_counts=True)
+        majority_val, majority_count = max(zip(vals, counts), key=lambda (val, count): count)
+        minority_val, minority_count = min(zip(vals, counts), key=lambda (val, count): count)
+        total_count = majority_count + minority_count
+        majority_probability = float(majority_count) / float(total_count)
+        minority_probability = float(minority_count) / float(total_count)
 
-        ### ========== TODO : START ========== ###
-        # insert your RandomClassifier code
-
-        ### ========== TODO : END ========== ###
-
+        # Generate dictionary using the values calculated above
+        self.probabilities_ = {majority_val : majority_probability, minority_val : minority_probability}
         return self
 
     def predict(self, X, seed=1234) :
@@ -130,12 +134,10 @@ class RandomClassifier(Classifier) :
             raise Exception("Classifier not initialized. Perform a fit first.")
         np.random.seed(seed)
 
-        ### ========== TODO : START ========== ###
-        # insert your RandomClassifier code
+         # np.random.choice assigns the keys into the array at the probability specified in its last parameter
+        y = np.random.choice(self.probabilities_.keys(), len(X), True, self.probabilities_.values())
+        return y
 
-        y = None
-
-        ### ========== TODO : END ========== ###
 
         return y
 
@@ -225,11 +227,13 @@ def main():
 
 
 
-    ### ========== TODO : START ========== ###
-    # part a: evaluate training error of Decision Tree classifier
     print 'Classifying using Decision Tree...'
+    dtc = DecisionTreeClassifier(criterion='entropy')
+    dtc.fit(X,y)
+    y_pred = dtc.predict(X)
+    train_error = 1 - metrics.accuracy_score(y,y_pred, normalize=True)
+    print '\t-- training error: %.3f' % train_error
 
-    ### ========== TODO : END ========== ###
 
 
 
