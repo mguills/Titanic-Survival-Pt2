@@ -181,14 +181,16 @@ def error(clf, X, y, ntrials=100, test_size=0.2) :
     for i in range(1,ntrials):
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                             test_size=test_size, random_state=ntrials)
-        clf.fit(X, y)
-        y_pred = clf.predict(X_train)    # take the classifier and run it on the training data
-        train_error += 1 - metrics.accuracy_score(y_pred, y_pred, normalize=True)
-        test_error += 1 - metrics.accuracy_score(y_test, y_pred, normalize=True)
+        clf.fit(X_train, y_train)               # create model based on training data
+        y_pred_train = clf.predict(X_train)     # take the classifier and run it on the training data
+        y_pred_test = clf.predict(X_test)       # take the classifer and run it on the testing data
+
+        train_error += 1 - metrics.accuracy_score(y_train, y_pred_train, normalize=True)
+        test_error += 1 - metrics.accuracy_score(y_test, y_pred_test, normalize=True)
 
     ### ========== TODO : END ========== ###
-    train_error = train_error/ntrials;
-    test_error = test_error/ntrails
+    train_error = train_error / ntrials
+    test_error = test_error / ntrials
 
     return train_error, test_error
 
@@ -201,6 +203,42 @@ def write_predictions(y_pred, filename, yname=None) :
         f.writerow([yname])
     f.writerows(zip(y_pred))
     out.close()
+
+def plot_depth(X, y, test_error_majority, test_error_random):
+    """
+    Plots average training error and test error against the depth limit. Also
+    includes the average test error for the baseline classifers (MajorityVoteClassifier
+    and RandomClassifier).
+
+    Parameters
+    --------------------
+    X                   -- numpy array of shape (n,d), features values
+    y                   -- numpy array of shape (n,), target classes
+    test_error_majority -- MajorityVoteClassifier test error
+    test_error_random   -- RandomClassifier test error
+    """
+
+    depth_points = np.arange(20)
+    test_error_majority_points = np.full(20, test_error_majority)
+    test_error_random_points = np.full(20, test_error_random)
+    test_error_tree_points = np.ones(20)
+    train_error_tree_points = np.ones(20)
+
+    for i in range(1,21):
+        clf = DecisionTreeClassifier(criterion='entropy', max_depth=i)
+        train_error_tree, test_error_tree = error(clf, X, y)
+        test_error_tree_points[i-1] = test_error_tree
+        train_error_tree_points[i-1] = train_error_tree
+
+    plt.plot(depth_points, test_error_majority_points, 'r--', label='Majority')
+    plt.plot(depth_points, test_error_random_points, 'bs', label='Random')
+    plt.plot(depth_points, test_error_tree_points, 'g^',label='Tree test')
+    plt.plot(depth_points, train_error_tree_points, 'cP', label='Tree train')
+
+    plt.xlabel('tree depth')
+    plt.ylabel('error')
+    plt.legend()
+    plt.show()
 
 
 ######################################################################
@@ -262,10 +300,17 @@ def main():
     clf2 = RandomClassifier();
     train_error_random, test_error_random = error(clf2, X, y)
 
-    clf3 = DecisionTreeClassifier();
+    clf3 = DecisionTreeClassifier(criterion='entropy');
     train_error_tree, test_error_tree = error(clf3, X, y)
-    print 'The majority vote classifier average training cross validation error is {} and the average testing cross validation error is {}'.format(train_error_majority, test_error_majority)
 
+    print """The majority vote classifier average training cross validation error
+    is {0:.3f} and the average testing cross validation error is {1:.3f}""".format(train_error_majority, test_error_majority)
+
+    print """The random classifier average training cross validation error
+    is {0:.3f} and the average testing cross validation error is {1:.3f}""".format(train_error_random, test_error_random)
+
+    print """The tree classifier average training cross validation error
+    is {0:.3f} and the average testing cross validation error is {1:.3f}""".format(train_error_tree, test_error_tree)
     ### ========== TODO : END ========== ###
 
 
@@ -273,6 +318,7 @@ def main():
     ### ========== TODO : START ========== ###
     # part c: investigate decision tree classifier with various depths
     print 'Investigating depths...'
+    plot_depth(X, y, test_error_majority, test_error_random)
 
     ### ========== TODO : END ========== ###
 
