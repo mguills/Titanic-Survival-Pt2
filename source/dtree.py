@@ -167,13 +167,11 @@ class Tree(object) :
         Xj = Xj.reshape((n,1))
         values = np.unique(Xj) # unique values in Xj, sorted
         n_values = len(values)
-        print values 
-        print n_values
+
         # compute optimal conditional entropy by trying all thresholds
         thresholds = np.empty(n_values - 1) # possible thresholds
         H_conds = np.empty(n_values - 1)    # associated conditional entropies
         for i in xrange(n_values - 1) :    
-            print i
             threshold = (values[i] + values[i+1]) / 2.
             thresholds[i] = threshold
             
@@ -191,15 +189,11 @@ class Tree(object) :
                 
             #H_conds[i] = H(X|Y)
             #reset H(X|Y) to 0
-           # print str(X1) +'\n'
-           # print str(y1) +'\n'
-           # print str(X2) +'\n'
-           # print str(y2) +'\n'
-            H_givenV = 0
+
             totalClassifications1 = len(y1)
             totalClassifications2 = len(y2)
-            classifications1 , counts1 = np.unique(y1,return_counts=True)
-            classifications2 , counts2 = np.unique(y1, return_counts=True)
+            classifications1 = np.unique(y1)
+            classifications2 = np.unique(y2)
             H_cond1 = 0
             H_cond2 = 0
             for j in range(len(classifications1)):
@@ -208,24 +202,19 @@ class Tree(object) :
                 instances_value1 = 0
                 instances_classification1 = 0
                 for k in range(len(X1)):
-                 #   print str(k)+": X1 :       " + str(X1[k]) 
-                  #  print "value:    " + str(values[i])
                     if X1[k] == values[i]:
                         instances_value1 += 1
                         if y1[k] == classifications1[j]:
                             instances_classification1 += 1
-                   # print "instance value:  " + str(instances_value1)
                 if instances_value1 == 0:
                     cond_prob = 0
                 else:
                     cond_prob = float(instances_classification1)/float(instances_value1)
-
-
                 # compute log2 of that^
                 # multiply them 
                 # add that to H_cond1
                 if cond_prob == 0: #if we know theres no chance of an instance occuring, there's no uncertainty 
-                    H_cond1 = 0
+                    H_cond1 += 0
                 else:
                     H_cond1 += cond_prob * np.log2(cond_prob)
             for j in range(len(classifications2)):
@@ -233,13 +222,10 @@ class Tree(object) :
                 instances_value2 = 0
                 instances_classification2 = 0
                 for k in range(len(X2)):
-                 #   print str(k)+" : X2 :       " + str(X2[k]) 
-                  #  print "value:   " + str(values[i])
                     if X2[k] == values[i]:
                         instances_value2 += 1
                         if y2[k] == classifications2[j]:
                             instances_classification2 += 1
-                  #  print "instance value:  " + str(instances_value2)
                 if instances_value2 == 0:
                     cond_prob = 0
                 else:
@@ -249,7 +235,7 @@ class Tree(object) :
                 # multiply them 
                 # add that to H_cond2
                 if cond_prob == 0:
-                    H_cond2 = 0
+                    H_cond2 += 0
                 else:
                     H_cond2 += cond_prob * np.log2(cond_prob)
             
@@ -266,12 +252,11 @@ class Tree(object) :
             for value in X2:
                 if value == values[i]:
                     val2 += 1
-            Prob_value1 = float(val1)/float(len(X1))
+            Prob_value1 = float(val1)/float(len(X1)) 
             Prob_value2 = float(val2)/float(len(X2))
             # multiply that by h_cond1, h_cond2 respectively 
             #H_conds[i] = that^ 
             H_conds[i] = Prob_value1 * H_cond1 + Prob_value2 * H_cond2
-            #print'\n' +  str(i) + ":" + "       " + str(H_cond1) + ":" + str(Prob_value1) +"            " + str(H_cond2) + ":" + str(Prob_value2) + '\n'
             # part c: compute conditional entropy for values[i]
                 
    
@@ -279,7 +264,6 @@ class Tree(object) :
         
         # find minimium conditional entropy (maximum information gain)
         # and associated threshold
-       # print '\n' + str(values) + '\n'
         best_H_cond = H_conds.min()
         indices = np.where(H_conds == best_H_cond)[0]
         best_index = np.random.choice(indices)
