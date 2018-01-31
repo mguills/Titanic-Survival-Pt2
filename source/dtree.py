@@ -341,26 +341,28 @@ class Tree(object) :
         # base case
         # 1) all samples have same labels
         if impurity == 0:
-            return self._create_new_leaf(node, value, impurity)
+            self._create_new_leaf(node, value, impurity)
+            return
         # 2) all feature values are equal
-        if np.all(X):
-            return self._create_new_leaf(node, value, impurity)
+        elif np.all(X):
+            self._create_new_leaf(node, value, impurity)
+            return
 
         else:
-            # this line is so that the code can run
-            # you can comment it out (or not) once you add your own code
-            pass
+            
 
             # choose best feature (and find associated threshold)
             feature, threshold = self._choose_feature(X,y)
             # make new decision tree node
-            newNode = self._create_new_node(node, feature, threshold, value, impurity)
+            self._create_new_node(node, feature, threshold, value, impurity)
             # split data on best feature
-            X1, y1, X2, y2 = self._split_data(X,y)
+            X1, y1, X2, y2 = self._split_data(X,y, feature, threshold)
             # build left subtree using recursion
-            newNode.children_left = self._build_helper(X1,y1, node + 1)
+            self._build_helper(X1,y1, node + 1)
             # build right subtree using recursion
-            newNode.children_right =  self._build_helper(X2,y1,node + 1)
+            self._build_helper(X2,y2,node + 2)
+            return 
+             
 
         ### ========== TODO : END ========== ###
 
@@ -424,6 +426,17 @@ class Tree(object) :
 
         # for each sample
         #   start at root of tree
+        for sample in X:
+            i = 0
+            while self.childten_left[i] != TREE_LEAF and self.children_right[i] != TREE_LEAF:
+                feature = self.feature[i]
+                if sample[feature] > self.threshold:
+                    i = self.children_right[i]
+                else:
+                    i = self.children_left[i]
+            y.append(self.value[i])
+
+                    
         #   follow edges to leaf node
         #   find value at leaf node
 
