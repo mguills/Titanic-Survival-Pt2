@@ -171,90 +171,16 @@ class Tree(object) :
         # compute optimal conditional entropy by trying all thresholds
         thresholds = np.empty(n_values - 1) # possible thresholds
         H_conds = np.empty(n_values - 1)    # associated conditional entropies
-        for i in xrange(n_values - 1) :    #What about the last unique value?
+        for i in xrange(n_values - 1) :   
             threshold = (values[i] + values[i+1]) / 2.
             thresholds[i] = threshold
             
-            X1, y1, X2, y2 = self._split_data(Xj, y, 0, threshold) #Should I calculate conditional entropy for this feature based on both X1 and X2 then add them?
-            ### ========== TODO : START ========== ###
-            # Xj is the value all n samples hold for one feature, ex all values for length 
-            # we already are looping through possible x values for this one feature, we're currently at values[i]
-                #initialize a running sum H(X|Y=values[i]) to 0
-                # loop through possible classifications 
-                    # given the current classification c1, compute entropy given the x value - value[i] - H(c1|Le = value[i]) ex. H(Li|Le = S)
-                    # add this to a running sum in this loop H(X|Y=value[i])
-                # negate the running sum H(X|Y=value[i])
-                # multiply negated sum by P(values[i])
-                # add that new value to running sum H(X|Y)
-                
-            #H_conds[i] = H(X|Y)
-            #reset H(X|Y) to 0
+            X1, y1, X2, y2 = self._split_data(Xj, y, 0, threshold)
 
-            #totalClassifications1 = len(y1)
-            #totalClassifications2 = len(y2)
-         #   classifications1 = np.unique(y1)
-         #   classifications2 = np.unique(y2)
-         #   H_cond1 = 0
-         #   H_cond2 = 0
-         #   for j in range(len(classifications1)):
-         #       # compute below for y1,x1 
-         #       # compute P(y = classifications1[j] | x = values[i]) for x1,y1
-         #       instances_value1 = 0
-         #       instances_classification1 = 0
-         #       for k in range(len(X1)):
-         #           if X1[k] == values[i]:
-         #               instances_value1 += 1
-         #               if y1[k] == classifications1[j]:
-         #                   instances_classification1 += 1
-         #       if instances_value1 == 0:
-         #           cond_prob = 0
-         #       else:
-         #           cond_prob = float(instances_classification1)/float(instances_value1)
-         #       # compute log2 of that^
-         #       # multiply them 
-         #       # add that to H_cond1
-         #       if cond_prob == 0: #if we know theres no chance of an instance occuring, there's no uncertainty 
-         #           H_cond1 += 0
-         #       else:
-         #           H_cond1 += cond_prob * np.log2(cond_prob)
-         #   for j in range(len(classifications2)):
-         #       # compute P(y = classifications2[j] | x = values[i]) for x2,y2
-         #       instances_value2 = 0
-         #       instances_classification2 = 0
-         #       for k in range(len(X2)):
-         #           if X2[k] == values[i]:
-         #               instances_value2 += 1
-         #               if y2[k] == classifications2[j]:
-         #                   instances_classification2 += 1
-         #       if instances_value2 == 0:
-         #           cond_prob = 0
-         #       else:
-         #           cond_prob = float(instances_classification2)/float(instances_value2)
-#
-                # compute log2 of that^
-                # multiply them 
-                # add that to H_cond2
-          #      if cond_prob == 0:
-           #         H_cond2 += 0
-            #    else:
-             #       H_cond2 += cond_prob * np.log2(cond_prob)
-            
-            
-            #multiply h_cond1 and h_cond2 by -1
-           # H_cond1 = (-1.0) * H_cond1
-           # H_cond2 = (-1.0) * H_cond2
-            #compute P(values[i]) for x1, x2
-           
-            # multiply that by h_cond1, h_cond2 respectively 
-            #H_conds[i] = that^ 
             H_cond1 = self._entropy(y1)
             H_cond2 = self._entropy(y2)
             H_conds[i] = float(len(X1))/float(len(Xj)) * H_cond1 + float(len(X2))/float(len(Xj)) * H_cond2
-            # part c: compute conditional entropy for values[i]
-                
-   
-            ### ========== TODO : END ========== ###
-        
+                           
         # find minimium conditional entropy (maximum information gain)
         # and associated threshold
         best_H_cond = H_conds.min()
