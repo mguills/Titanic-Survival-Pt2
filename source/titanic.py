@@ -167,16 +167,8 @@ def error(clf, X, y, ntrials=100, test_size=0.2) :
         test_error  -- float, test error
     """
 
-    ### ========== TODO : START ========== ###
-    # part b: compute cross-validation error over ntrials
-    # hint: use train_test_split (be careful of the parameters)
-
     train_error = 0
     test_error = 0
-
-    if isinstance(test_size, int):
-        test_size = X.shape[0] / test_size
-
 
     for i in range(1,ntrials):
         X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -188,7 +180,6 @@ def error(clf, X, y, ntrials=100, test_size=0.2) :
         train_error += 1 - metrics.accuracy_score(y_train, y_pred_train, normalize=True)
         test_error += 1 - metrics.accuracy_score(y_test, y_pred_test, normalize=True)
 
-    ### ========== TODO : END ========== ###
     train_error = train_error / ntrials
     test_error = test_error / ntrials
 
@@ -224,19 +215,63 @@ def plot_depth(X, y, test_error_majority, test_error_random):
     test_error_tree_points = np.ones(20)
     train_error_tree_points = np.ones(20)
 
+    min_error = 1
+    min_tree_depth = 0
+
     for i in range(1,21):
         clf = DecisionTreeClassifier(criterion='entropy', max_depth=i)
         train_error_tree, test_error_tree = error(clf, X, y)
         test_error_tree_points[i-1] = test_error_tree
         train_error_tree_points[i-1] = train_error_tree
+        if test_error_tree < min_error:
+            min_error = test_error_tree
+            min_tree_depth = i
 
     plt.plot(depth_points, test_error_majority_points, 'r--', label='Majority')
-    plt.plot(depth_points, test_error_random_points, 'bs', label='Random')
+    plt.plot(depth_points, test_error_random_points, 'm--', label='Random')
     plt.plot(depth_points, test_error_tree_points, 'g^',label='Tree test')
     plt.plot(depth_points, train_error_tree_points, 'cP', label='Tree train')
 
-    plt.xlabel('tree depth')
-    plt.ylabel('error')
+    plt.xlabel('Tree Depth')
+    plt.ylabel('Error')
+    plt.legend()
+    # print min_error
+    # print min_tree_depth
+    plt.show()
+
+def plot_learning_curves(X, y, test_error_majority, test_error_random):
+    """
+    Plots average training error and test error against the percentage of data used as traing data.
+    Also includes the average test error for the baseline classifers (MajorityVoteClassifier
+    and RandomClassifier).
+
+    Parameters
+    --------------------
+    X                   -- numpy array of shape (n,d), features values
+    y                   -- numpy array of shape (n,), target classes
+    test_error_majority -- MajorityVoteClassifier test error
+    test_error_random   -- RandomClassifier test error
+    """
+    learning_points = np.arange(.05, .95, .05)
+    test_error_majority_points = np.full(18, test_error_majority)
+    test_error_random_points = np.full(18, test_error_random)
+    test_error_learning_points = np.ones(18)
+    train_error_learning_points = np.ones(18)
+
+    for i in range(0, 18):
+        clf = DecisionTreeClassifier(criterion='entropy', max_depth=1)
+        test_size = 1-learning_points[i]
+        train_error_learning, test_error_learning = error(clf, X, y, test_size=test_size)
+        test_error_learning_points[i] = test_error_learning
+        train_error_learning_points[i] = train_error_learning
+
+    plt.plot(learning_points, test_error_majority_points, 'r--', label='Majority')
+    plt.plot(learning_points, test_error_random_points, 'm--', label='Random')
+    plt.plot(learning_points, test_error_learning_points, 'g^',label='Tree test')
+    plt.plot(learning_points, train_error_learning_points, 'cP', label='Tree train')
+
+    plt.xlabel('Percentage of Training Data')
+    plt.ylabel('Error')
     plt.legend()
     plt.show()
 
@@ -288,11 +323,6 @@ def main():
     graph.write_pdf("dtree.pdf")
     """
 
-
-
-    ### ========== TODO : START ========== ###
-    # part b: use cross-validation to compute average training and test error of classifiers
-
     print 'Investigating various classifiers...'
     clf1 = MajorityVoteClassifier();
     train_error_majority, test_error_majority = error(clf1, X, y)
@@ -311,23 +341,16 @@ def main():
 
     print """The tree classifier average training cross validation error
     is {0:.3f} and the average testing cross validation error is {1:.3f}""".format(train_error_tree, test_error_tree)
-    ### ========== TODO : END ========== ###
 
 
-
-    ### ========== TODO : START ========== ###
-    # part c: investigate decision tree classifier with various depths
     print 'Investigating depths...'
     plot_depth(X, y, test_error_majority, test_error_random)
-
-    ### ========== TODO : END ========== ###
-
 
 
     ### ========== TODO : START ========== ###
     # part d: investigate decision tree classifier with various training set sizes
     print 'Investigating training set sizes...'
-
+    plot_learning_curves(X, y, test_error_majority, test_error_random)
     ### ========== TODO : END ========== ###
 
 
