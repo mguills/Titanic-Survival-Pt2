@@ -340,13 +340,11 @@ class Tree(object) :
 
         # base case
         # 1) all samples have same labels
+        if impurity == 0:
+            return self._create_new_leaf(node, value, impurity)
         # 2) all feature values are equal
-        if True : # you should modify this condition
-            # this line is so that the code can run
-            # you can comment it out (or not) once you add your own code
-            pass
-
-            # create a single leaf
+        if np.all(X):
+            return self._create_new_leaf(node, value, impurity)
 
         else:
             # this line is so that the code can run
@@ -354,14 +352,15 @@ class Tree(object) :
             pass
 
             # choose best feature (and find associated threshold)
-
+            feature, threshold = self._choose_feature(X,y)
             # make new decision tree node
-
+            newNode = self._create_new_node(node, feature, threshold, value, impurity)
             # split data on best feature
-
+            X1, y1, X2, y2 = self._split_data(X,y)
             # build left subtree using recursion
-
+            newNode.children_left = self._build_helper(X1,y1, node + 1)
             # build right subtree using recursion
+            newNode.children_right =  self._build_helper(X2,y1,node + 1)
 
         ### ========== TODO : END ========== ###
 
@@ -694,7 +693,6 @@ def main():
     # _information_gain -> information gain, threshold
     # soln -- (0.25162916738782293, 1.5)
     print '(I,t) =', my_tree._information_gain(X[:,0], y)
-    '''
     # main
     # soln -- See below. You may get a different decision tree but y_pred should be the same.
     clf2 = DecisionTreeClassifier(random_state=1234)
@@ -745,7 +743,6 @@ def main():
     #========================================
 
     print 'Done'
-'''
 
 if __name__ == "__main__":
     main()
