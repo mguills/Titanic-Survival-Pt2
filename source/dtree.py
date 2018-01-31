@@ -319,6 +319,7 @@ class Tree(object) :
         self.n_node_samples[node] = sum(value)
 
     def _build_helper(self, X, y, node=0) :
+        
         """
         Build a decision tree from (X,y) in depth-first fashion.
 
@@ -330,24 +331,32 @@ class Tree(object) :
         """
 
         n, d = X.shape
-
         value = self._get_value(y)
         impurity = self._entropy(y)
-
+        
         ### ========== TODO : START ========== ###
         # part d: decision tree induction algorithm
         # you can modify any code within this TODO block
 
         # base case
         # 1) all samples have same labels
-        if impurity == 0:
-            self._create_new_leaf(node, value, impurity)
-            return
-        # 2) all feature values are equal
-        elif np.all(X):
-            self._create_new_leaf(node, value, impurity)
-            return
+        equal_Y = True
+        for label in range(len(y) - 1):
+            if y[label] != y[label+1]:
+                equal_Y = False
+        equal_X = True
+        for feature in range(len(X) - 1):
+            if X[feature].all() != X[feature + 1].all():
+                equal_X = False 
 
+        if equal_Y: #all function isn't working properly
+            self._create_new_leaf(node, value, impurity)
+            
+        # 2) all feature values are equal
+        elif equal_X: #all function isn't working properly 
+            self._create_new_leaf(node, value, impurity)
+            
+        
         else:
             
 
@@ -358,10 +367,11 @@ class Tree(object) :
             # split data on best feature
             X1, y1, X2, y2 = self._split_data(X,y, feature, threshold)
             # build left subtree using recursion
-            self._build_helper(X1,y1, node + 1)
+            self._build_helper(X1, y1, self.children_left[node])
+            #self._build_helper(X1,y1, node + 1)
             # build right subtree using recursion
-            self._build_helper(X2,y2,node + 2)
-            return 
+           # self._build_helper(X2,y2,node + 2)
+            self._build_helper(X2, y2, self.children_right[node])
              
 
         ### ========== TODO : END ========== ###
@@ -426,15 +436,17 @@ class Tree(object) :
 
         # for each sample
         #   start at root of tree
+        j = 0
         for sample in X:
             i = 0
-            while self.childten_left[i] != TREE_LEAF and self.children_right[i] != TREE_LEAF:
+            while self.children_left[i] != Tree.TREE_LEAF and self.children_right[i] != Tree.TREE_LEAF:
                 feature = self.feature[i]
-                if sample[feature] > self.threshold:
+                if sample[feature] > self.threshold[i]:
                     i = self.children_right[i]
                 else:
                     i = self.children_left[i]
-            y.append(self.value[i])
+            y[j] = self.value[i]
+            j += 1
 
                     
         #   follow edges to leaf node
@@ -711,13 +723,14 @@ def main():
     clf2 = DecisionTreeClassifier(random_state=1234)
     clf2.fit(X, y)
     print_tree(clf2.tree_, feature_names=Xnames, class_names=["No", "Yes"])
+    
     y_pred2 = clf2.predict(X)
     print 'y_pred2 =', y_pred2
 
     assert (y_pred == y_pred2).all(), "predictions are not the same"
 
     """
-    Output
+     Output
 
     def predict(x):
         if director <= 0.50: # (node 0: impurity = 0.92, samples = 9, value = [ 3.  6.], class = Yes)
