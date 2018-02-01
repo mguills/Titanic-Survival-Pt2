@@ -345,10 +345,12 @@ class Tree(object) :
             if y[label] != y[label+1]:
                 equal_Y = False
         equal_X = True
-        for feature in range(len(X) - 1):
-            if X[feature].all() != X[feature + 1].all():
-                equal_X = False 
-
+        for i in range(d):
+            for j in range(n - 1):
+                if X[j][i] != X[j+1][i]:
+                    equal_X = False
+        print "X:   " + str(X) + '\n' 
+        print "Is this all the same? :     " + str(equal_X)
         if equal_Y: #all function isn't working properly
             self._create_new_leaf(node, value, impurity)
             
@@ -764,6 +766,8 @@ def main():
     clf2.fit(X, y)
     y_pred2 = clf2.predict(X)
 
+    print y_pred 
+    print y_pred2
     assert (y_pred == y_pred2).all(), "predictions are not the same"
 
     #========================================
