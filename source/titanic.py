@@ -1,5 +1,6 @@
 """
-Author      : Yi-Chieh Wu
+Author      : Jackson Crewe and Matt Guillory
+Assignment  : 2
 Class       : HMC CS 158
 Date        : 2017 Aug 02
 Description : Titanic
@@ -169,7 +170,6 @@ def error(clf, X, y, ntrials=100, test_size=0.2) :
 
     train_error = 0
     test_error = 0
-
     for i in range(1,ntrials):
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                             test_size=test_size, random_state=ntrials)
@@ -275,6 +275,42 @@ def plot_learning_curves(X, y, test_error_majority, test_error_random):
     plt.legend()
     plt.show()
 
+def frange(x, y, jump):
+  while x < y:
+    yield x
+    x += jump
+
+def make_contest_predictions(X, y):
+    """
+    Tests different hyperparameters for contest using input dataset
+
+    Parameters
+    --------------------
+    X                   -- numpy array of shape (n,d), features values
+    y                   -- numpy array of shape (n,), target classes
+    """
+    min_error = 1
+    best_depth = 0
+    best_min_impurity_decrease = 0
+    best_samp_split = 0
+
+    for i in range(2,20):
+        for j in range(1,10):
+            for k in np.arange(.05, .30, .05):
+                print k
+
+                train_error_tree, test_error_tree = error(clf, X, y)
+                if (test_error_tree < min_error):
+                    min_error = test_error_tree
+                    best_depth = j
+                    best_min_impurity_decrease = k
+                    best_samp_split = i
+                print """The tree classifier average training cross validation error
+                is {0:.3f} and the average testing cross validation error is {1:.3f}.
+                The max depth is {2}, the min impurity decrease is {3}, and the min samples split is {4}""".format(train_error_tree, test_error_tree, j, k, i) + '\n'
+
+    print "The best hyperparameters are: best error: {3}, best depth: {0}, best imp: {1}, best samp: {2}".format(best_depth, best_min_impurity_decrease, best_samp_split, min_error)
+
 
 ######################################################################
 # main
@@ -330,7 +366,7 @@ def main():
     clf2 = RandomClassifier();
     train_error_random, test_error_random = error(clf2, X, y)
 
-    clf3 = DecisionTreeClassifier(criterion='entropy');
+    clf3 = DecisionTreeClassifier(criterion='entropy')
     train_error_tree, test_error_tree = error(clf3, X, y)
 
     print """The majority vote classifier average training cross validation error
@@ -347,25 +383,22 @@ def main():
     plot_depth(X, y, test_error_majority, test_error_random)
 
 
-    ### ========== TODO : START ========== ###
     # part d: investigate decision tree classifier with various training set sizes
     print 'Investigating training set sizes...'
     plot_learning_curves(X, y, test_error_majority, test_error_random)
-    ### ========== TODO : END ========== ###
 
 
-
-    ### ========== TODO : START ========== ###
     # Contest
     # uncomment write_predictions and change the filename
 
     # evaluate on test data
     titanic_test = load_data("titanic_test.csv", header=1, predict_col=None)
     X_test = titanic_test.X
+    clf = DecisionTreeClassifier(criterion='entropy', max_depth = 3,
+                                min_impurity_decrease = 0.15, min_samples_split = 10)
+    clf.fit(X,y)
     y_pred = clf.predict(X_test)   # take the trained classifier and run it on the test data
-    #write_predictions(y_pred, "../data/yjw_titanic.csv", titanic.yname)
-
-    ### ========== TODO : END ========== ###
+    write_predictions(y_pred, "../data/jcrewe_mguillory_titanic.csv", titanic.yname)
 
 
 

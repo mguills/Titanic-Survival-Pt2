@@ -1,5 +1,6 @@
 """
-Author      : Yi-Chieh Wu
+Author      : Jackson Crewe and Matt Guillory
+Assignment  : 2
 Class       : HMC CS 158
 Date        : 2018 Aug 11
 Description : Decision Tree Classifier
@@ -131,15 +132,15 @@ class Tree(object) :
 
         # compute counts
         _, counts = np.unique(y, return_counts=True)
-        
+
         totalSum = 0
         H = 0
         for outcomeCount in counts:
             totalSum += outcomeCount
-        
+
         for outcomeCount in counts:
             H += (-1.0) * (float(outcomeCount)/float(totalSum)) * np.log2(float(outcomeCount)/float(totalSum))
-        
+
         return H
 
     def _information_gain(self, Xj, y) :
@@ -171,16 +172,16 @@ class Tree(object) :
         # compute optimal conditional entropy by trying all thresholds
         thresholds = np.empty(n_values - 1) # possible thresholds
         H_conds = np.empty(n_values - 1)    # associated conditional entropies
-        for i in xrange(n_values - 1) :   
+        for i in xrange(n_values - 1) :
             threshold = (values[i] + values[i+1]) / 2.
             thresholds[i] = threshold
-            
+
             X1, y1, X2, y2 = self._split_data(Xj, y, 0, threshold)
 
             H_cond1 = self._entropy(y1)
             H_cond2 = self._entropy(y2)
             H_conds[i] = float(len(X1))/float(len(Xj)) * H_cond1 + float(len(X2))/float(len(Xj)) * H_cond2
-                           
+
         # find minimium conditional entropy (maximum information gain)
         # and associated threshold
         best_H_cond = H_conds.min()
@@ -191,7 +192,7 @@ class Tree(object) :
 
         # compute information gain
         info_gain = H - best_H_cond
-        
+
         return info_gain, best_threshold
 
     def _split_data(self, X, y, feature, threshold) :
@@ -222,7 +223,7 @@ class Tree(object) :
 
         X1, X2 = [], []
         y1, y2 = [], []
-        ### ========== TODO : START ========== ###       
+        ### ========== TODO : START ========== ###
         for i in range(len(X)):
             if X[i,feature] <= threshold:
                 X1.append(X[i])
@@ -319,7 +320,7 @@ class Tree(object) :
         self.n_node_samples[node] = sum(value)
 
     def _build_helper(self, X, y, node=0) :
-        
+
         """
         Build a decision tree from (X,y) in depth-first fashion.
 
@@ -333,7 +334,7 @@ class Tree(object) :
         n, d = X.shape
         value = self._get_value(y)
         impurity = self._entropy(y)
-        
+
         ### ========== TODO : START ========== ###
         # part d: decision tree induction algorithm
         # you can modify any code within this TODO block
@@ -349,18 +350,18 @@ class Tree(object) :
             for j in range(n - 1):
                 if X[j][i] != X[j+1][i]:
                     equal_X = False
-        print "X:   " + str(X) + '\n' 
+        print "X:   " + str(X) + '\n'
         print "Is this all the same? :     " + str(equal_X)
         if equal_Y: #all function isn't working properly
             self._create_new_leaf(node, value, impurity)
-            
+
         # 2) all feature values are equal
-        elif equal_X: #all function isn't working properly 
+        elif equal_X: #all function isn't working properly
             self._create_new_leaf(node, value, impurity)
-            
-        
+
+
         else:
-            
+
 
             # choose best feature (and find associated threshold)
             feature, threshold = self._choose_feature(X,y)
@@ -374,7 +375,7 @@ class Tree(object) :
             # build right subtree using recursion
            # self._build_helper(X2,y2,node + 2)
             self._build_helper(X2, y2, self.children_right[node])
-             
+
 
         ### ========== TODO : END ========== ###
 
@@ -450,7 +451,7 @@ class Tree(object) :
             y[j] = self.value[i]
             j += 1
 
-                    
+
         #   follow edges to leaf node
         #   find value at leaf node
 
@@ -715,8 +716,8 @@ def main():
     X1, y1, X2, y2 = my_tree._split_data(X, y, 0, 1.5)
     print '[X1,y1] =\n', np.column_stack((X1, y1))
     print '[X2,y2] =\n', np.column_stack((X2, y2))
-    
-    
+
+
     # _information_gain -> information gain, threshold
     # soln -- (0.25162916738782293, 1.5)
     print '(I,t) =', my_tree._information_gain(X[:,0], y)
@@ -725,7 +726,7 @@ def main():
     clf2 = DecisionTreeClassifier(random_state=1234)
     clf2.fit(X, y)
     print_tree(clf2.tree_, feature_names=Xnames, class_names=["No", "Yes"])
-    
+
     y_pred2 = clf2.predict(X)
     print 'y_pred2 =', y_pred2
 
@@ -766,7 +767,7 @@ def main():
     clf2.fit(X, y)
     y_pred2 = clf2.predict(X)
 
-    print y_pred 
+    print y_pred
     print y_pred2
     assert (y_pred == y_pred2).all(), "predictions are not the same"
 
